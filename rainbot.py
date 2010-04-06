@@ -55,6 +55,9 @@ ZONE_STRING_LIST = [ str(i) for i in range(1, 13) ]
 START_HOUR = 4
 INCREMENT_DAY = 2
 
+# How long to wait between zones
+ZONE_DELAY_SECONDS = 5
+
 class RainBotProtocol(MessageProtocol):
     def connectionMade(self):
         print "Connected!"
@@ -460,14 +463,14 @@ class Scheduler(object):
 
     def runNextZone(self, zone):
         """
-        Breathe for a second, then run the next zone.
+        Breathe for a moment, then run the next zone.
         """
         self.im.setStatus("Finished zone: " + str(zone))
         if zone < len(ZONE_STRING_LIST):
             nextZone = zone + 1
-            reactor.callLater(1, self.runZone, nextZone, singleZone = False)
+            reactor.callLater(ZONE_DELAY_SECONDS, self.runZone, nextZone, singleZone = False)
         else:
-            reactor.callLater(1, self.ranLastZone)
+            reactor.callLater(ZONE_DELAY_SECONDS, self.ranLastZone)
     
     def ranLastZone(self):
         """
