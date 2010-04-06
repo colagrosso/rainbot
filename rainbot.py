@@ -369,7 +369,8 @@ class Scheduler(object):
 
         # Cancel any previously scheduled runs
         if self.nextScheduledRun:
-            self.nextScheduledRun.cancel()
+            if self.nextScheduledRun.active():
+                self.nextScheduledRun.cancel()
             self.nextScheduledRun = None
         
         # Calculate number of seconds till it's time to run
@@ -404,7 +405,8 @@ class Scheduler(object):
         self.willRunStatusString = "Sprinklers off"
         self.turnOffAllZones()
         if self.nextScheduledRun:
-            self.nextScheduledRun.cancel()
+            if self.nextScheduledRun.active():
+                self.nextScheduledRun.cancel()
             self.nextScheduledRun = None
         self.im.setStatus("Sprinklers off", show = "xa") # Red light in the status
 
