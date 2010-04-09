@@ -467,6 +467,7 @@ class Scheduler(object):
         """
         Breathe for a moment, then run the next zone.
         """
+        self.turnOffAllZones()
         self.im.setStatus("Finished zone: " + str(zone))
         if zone < len(ZONE_STRING_LIST):
             nextZone = zone + 1
