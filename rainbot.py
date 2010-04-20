@@ -241,6 +241,8 @@ class RainBotProtocol(MessageProtocol):
         This is in the status, but I want to have it sent to me anyway.
         """
         responseText = self.scheduler.lastRunStatusString
+        now = datetime.now()
+        responseText += " (" + str(now - self.scheduler.shelveConfig["lastRun"]) + " ago)"
         self.sendText(responseText)
 
     def handleWill(self, msgTokens):
@@ -248,6 +250,8 @@ class RainBotProtocol(MessageProtocol):
         This is at the end of the status, where sometimes I can't read it.
         """
         responseText = self.scheduler.willRunStatusString
+        now = datetime.now()
+        responseText += " (in " + str(self.scheduler.willRunDatetime - now) + ")"
         self.sendText(responseText)
 
     def handleHelp(self, msgTokens):
@@ -376,16 +380,16 @@ class Scheduler(object):
         # Calculate number of seconds till it's time to run
         now = datetime.now()
         lastRunTime = self.shelveConfig["lastRun"]
-        timeToRun = lastRunTime.replace(hour = START_HOUR, minute = 0, second = 0) # Love that .replace() from datetime
-        while lastRunTime > timeToRun or now > timeToRun:
-            timeToRun += timedelta(days = INCREMENT_DAY)
+        self.willRunDatetime = lastRunTime.replace(hour = START_HOUR, minute = 0, second = 0) # Love that .replace() from datetime
+        while lastRunTime > self.willRunDatetime or now > self.willRunDatetime:
+            self.willRunDatetime += timedelta(days = INCREMENT_DAY)
         if pauseDelay:
-            timeToRun += pauseDelay
-        timeTillRun = timeToRun - now
+            self.willRunDatetime += pauseDelay
+        timeTillRun = self.willRunDatetime - now
         timeTillRunSeconds = _td_to_seconds(timeTillRun)
 
         self.nextScheduledRun = reactor.callLater(timeTillRunSeconds, self.runProgram)
-        self.willRunStatusString = "Will run: " + timeToRun.strftime(TIME_FORMAT) + "."
+        self.willRunStatusString = "Will run: " + self.willRunDatetime.strftime(TIME_FORMAT) + "."
         try:
             self.im.setStatus(self.lastRunStatusString + self.willRunStatusString)
         except:
@@ -488,7 +492,10 @@ class Scheduler(object):
         lastRunTime = self.shelveConfig["lastRun"] = datetime.now()
         self.shelveConfig.sync()
         self.lastRunStatusString = "Last run: " + lastRunTime.strftime(TIME_FORMAT) + ". "
-        self.im.setStatus(self.lastRunStatusString + self.willRunStatusString)
+        try:
+            self.im.setStatus(self.lastRunStatusString + self.willRunStatusString)
+        except:
+            pass
 
     def turnOnZone(self, zone):
         """
