@@ -3,12 +3,12 @@ from twisted.words.protocols.jabber import jid
 from wokkel.client import XMPPClient
 
 from rainbot import RainBotProtocol, Scheduler, ALL_OFF_COMMAND
+from moisture import MoistureSampler
 
 application = service.Application("rainbot")
 
-HOSTNAME = "10.0.1.17"
 import u3
-d = u3.U3(LJSocket = HOSTNAME + ":6000")
+d = u3.U3()
 d.getFeedback(ALL_OFF_COMMAND)
 
 YOUR_JID  = ""
@@ -18,6 +18,11 @@ xmppclient = XMPPClient(jid.internJID(YOUR_JID), YOUR_PASS)
 xmppclient.logTraffic = False
 rainbot = RainBotProtocol()
 rainbot.d = d
+
+MOISTURE_REGISTER = 0
+moisture = MoistureSampler(d, MOISTURE_REGISTER)
+
+rainbot.moisture = moisture
 
 rainbot.setHandlerParent(xmppclient)
 xmppclient.setServiceParent(application)
