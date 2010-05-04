@@ -109,6 +109,8 @@ class RainBotProtocol(MessageProtocol):
                     self.handleLast(msgTokens)
                 elif msgCommand == "will" or msgCommand == "w":
                     self.handleWill(msgTokens)                    
+                elif msgCommand == "moisture" or msgCommand == "m":
+                    self.handleMoisture(msgTokens)
                 elif msgCommand == "help" or msgCommand == "h" or msgCommand == "?":
                     self.handleHelp(msgTokens)
                 elif msgCommand in ZONE_STRING_LIST:
@@ -254,6 +256,10 @@ class RainBotProtocol(MessageProtocol):
         responseText += " (in " + str(self.scheduler.willRunDatetime - now) + ")"
         self.sendText(responseText)
 
+    def handleMoisture(self, msgTokens):
+        responseText = self.moisture.fetchAverage()
+        self.sendText(responseText)
+
     def handleHelp(self, msgTokens):
         responseText = "Commands:\n"
         responseText += "on\n"
@@ -268,6 +274,7 @@ class RainBotProtocol(MessageProtocol):
         responseText += "times (t) <zone> <new time>\n"
         responseText += "last (l)\n"
         responseText += "will (w)\n"
+        responseText += "moisture (m)\n"
         responseText += "quit (q)\n"
         responseText += "1..12 <time to run>\n"
         responseText += "\n"
