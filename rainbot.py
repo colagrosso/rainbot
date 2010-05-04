@@ -257,7 +257,11 @@ class RainBotProtocol(MessageProtocol):
         self.sendText(responseText)
 
     def handleMoisture(self, msgTokens):
-        responseText = self.moisture.fetchAverage()
+        startTime = None
+        if len(msgTokens) == 2:
+            startTime = msgTokens[-1]
+        responseText = self.moisture.fetchAverage(startTime) # Returns a tuple that needs to be a readable string
+        responseText = str(responseText).replace(", ", "\n")
         self.sendText(responseText)
 
     def handleHelp(self, msgTokens):
@@ -274,7 +278,7 @@ class RainBotProtocol(MessageProtocol):
         responseText += "times (t) <zone> <new time>\n"
         responseText += "last (l)\n"
         responseText += "will (w)\n"
-        responseText += "moisture (m)\n"
+        responseText += "moisture (m) <start time>\n"
         responseText += "quit (q)\n"
         responseText += "1..12 <time to run>\n"
         responseText += "\n"

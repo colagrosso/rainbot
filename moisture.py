@@ -51,5 +51,8 @@ class MoistureSampler(object):
         rrdtool.update(RRD_NAME,
                        "N:" + str(reading))
 
-    def fetchAverage(self):
-        return rrdtool.fetch(RRD_NAME, "AVERAGE")
+    def fetchAverage(self, startTime = None):
+        if startTime:
+            return rrdtool.fetch(RRD_NAME, "AVERAGE", "--start", startTime)
+        else:
+            return rrdtool.fetch(RRD_NAME, "AVERAGE")
