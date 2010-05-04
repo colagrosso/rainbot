@@ -50,3 +50,6 @@ class MoistureSampler(object):
         reading = self.device.readRegister(self.sensorRegister)
         rrdtool.update(RRD_NAME,
                        "N:" + str(reading))
+
+    def fetchAverage(self):
+        return rrdtool.fetch(RRD_NAME, "AVERAGE")
