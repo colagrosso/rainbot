@@ -39,12 +39,12 @@ class MoistureSampler(object):
         print "Creating database", RRD_NAME
         rrdtool.create(RRD_NAME,
                        "--step", str(SAMPLE_PERIOD),
-                       "DS:moisture:GAUGE:%s:0:1.8" % (str(2*SAMPLE_PERIOD),),
-                       "RRA:AVERAGE:0.5:1:12",
-                       "RRA:AVERAGE:0.5:12:24",
-                       "RRA:AVERAGE:0.5:12:168",
-                       "RRA:AVERAGE:0.5:72:120",
-                       "RRA:AVERAGE:0.5:288:365")
+                       "DS:moisture:GAUGE:%s:0:1.8" % (str(2*SAMPLE_PERIOD),), # Sensor range is 0-1.8 V
+                       "RRA:AVERAGE:0.5:1:12",                                 # Hourly (all 12 readings)
+                       "RRA:AVERAGE:0.5:12:24",                                # Daily
+                       "RRA:AVERAGE:0.5:12:168",                               # Weekly
+                       "RRA:AVERAGE:0.5:72:120",                               # Monthly (6-hour summaries)
+                       "RRA:AVERAGE:0.5:288:365")                              # Yearly
 
     def sampleAndLog(self):
         reading = self.device.readRegister(self.sensorRegister)
