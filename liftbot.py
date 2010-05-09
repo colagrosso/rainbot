@@ -29,31 +29,37 @@ INIT_IO_COMMAND = [u3.BitDirWrite(BIG_DOOR_BUTTON, 1),
 def initU3(d):
     d.getFeedback(INIT_IO_COMMAND)
 
+def powerOnOpener(d):
+    """Provide power to the opener."""
+    commandList = [u3.DAC0_16(int(3.3 / 5 * 65535))]
+    d.getFeedback(commandList)
+
+def powerOffOpener(d):
+    """Cut power to the opener."""
+    commandList = [u3.DAC0_16(0)]
+    d.getFeedback(commandList)
+
 def pressBigDoorButton(d):
-    """Set DAC0 to 3.3 V and set BIG_DOOR_BUTTON output high."""
-    commandList = [u3.DAC0_16(int(3.3 / 5 * 65535)), 
-                   u3.BitDirWrite(BIG_DOOR_BUTTON, 1), 
+    """Set BIG_DOOR_BUTTON output high."""
+    commandList = [u3.BitDirWrite(BIG_DOOR_BUTTON, 1), 
                    u3.BitStateWrite(BIG_DOOR_BUTTON, 1)]
     d.getFeedback(commandList)
     
 def releaseBigDoorButton(d):
-    """Set DAC0 to 0 V and set BIG_DOOR_BUTTON output low."""
-    commandList = [u3.DAC0_16(0), 
-                   u3.BitDirWrite(BIG_DOOR_BUTTON, 1), 
+    """Set BIG_DOOR_BUTTON output low."""
+    commandList = [u3.BitDirWrite(BIG_DOOR_BUTTON, 1), 
                    u3.BitStateWrite(BIG_DOOR_BUTTON, 0)]
     d.getFeedback(commandList)
 
 def pressLittleDoorButton(d):
-    """Set DAC0 to 3.3 V and set BIG_DOOR_BUTTON output high."""
-    commandList = [u3.DAC0_16(int(3.3 / 5 * 65535)), 
-                   u3.BitDirWrite(LITTLE_DOOR_BUTTON, 1), 
+    """Set LITTLE_DOOR_BUTTON output high."""
+    commandList = [u3.BitDirWrite(LITTLE_DOOR_BUTTON, 1), 
                    u3.BitStateWrite(LITTLE_DOOR_BUTTON, 1)]
     d.getFeedback(commandList)
 
 def releaseLittleDoorButton(d):
-    """Set DAC0 to 0 V and set BIG_DOOR_BUTTON output low."""
-    commandList = [u3.DAC0_16(0), 
-                   u3.BitDirWrite(LITTLE_DOOR_BUTTON, 1), 
+    """Set LITTLE_DOOR_BUTTON output low."""
+    commandList = [u3.BitDirWrite(LITTLE_DOOR_BUTTON, 1), 
                    u3.BitStateWrite(LITTLE_DOOR_BUTTON, 0)]
     d.getFeedback(commandList)
 
@@ -123,13 +129,17 @@ class LiftBotProtocol(RainBotProtocol):
 
     def handleBig(self, msgTokens):
         self.sendText("Pushing big button")
-        pressBigDoorButton(self.d)
-        reactor.callLater(PUSH_TIME, releaseBigDoorButton, self.d)
+        reactor.callLater(0, powerOnOpener, self.d)
+        reactor.callLater(1, pressBigDoorButton, self.d)
+        reactor.callLater(PUSH_TIME + 1, releaseBigDoorButton, self.d)
+        reactor.callLater(PUSH_TIME + 2, powerOffOpener, self.d)
 
     def handleLittle(self, msgTokens):
         self.sendText("Pushing little button")
-        pressLittleDoorButton(self.d)
-        reactor.callLater(PUSH_TIME, releaseLittleDoorButton, self.d)
+        reactor.callLater(0, powerOnOpener, self.d)
+        reactor.callLater(1, pressLittleDoorButton, self.d)
+        reactor.callLater(PUSH_TIME + 1, releaseLittleDoorButton, self.d)
+        reactor.callLater(PUSH_TIME + 2, powerOffOpener, self.d)
 
     def handleHelp(self, msgTokens):
         responseText = "Commands:\n"
