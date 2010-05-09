@@ -4,6 +4,7 @@ from wokkel.client import XMPPClient
 
 from rainbot import RainBotProtocol, Scheduler, ALL_OFF_COMMAND
 from moisture import MoistureSampler
+from liftbot import LiftBotProtocol
 
 application = service.Application("rainbot")
 
@@ -13,6 +14,8 @@ d.getFeedback(ALL_OFF_COMMAND)
 
 YOUR_JID  = ""
 YOUR_PASS = ""
+LIFTBOT_JID  = ""
+LIFTBOT_PASS = ""
 
 xmppclient = XMPPClient(jid.internJID(YOUR_JID), YOUR_PASS)
 xmppclient.logTraffic = False
@@ -26,3 +29,11 @@ rainbot.moisture = moisture
 
 rainbot.setHandlerParent(xmppclient)
 xmppclient.setServiceParent(application)
+
+liftBot_xmppclient = XMPPClient(jid.internJID(LIFTBOT_JID), LIFTBOT_PASS)
+liftBot_xmppclient.logTraffic = False
+liftbot = LiftBotProtocol()
+liftbot.d = d
+
+liftbot.setHandlerParent(liftBot_xmppclient)
+liftBot_xmppclient.setServiceParent(application)
