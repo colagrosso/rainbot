@@ -89,15 +89,20 @@ def getDoorState(d):
     """
     commandList = [u3.BitStateRead(BIG_DOOR_SENSOR), 
                    u3.BitStateRead(LITTLE_DOOR_SENSOR)]
-    bigDoorUp, littleDoorUp = d.getFeedback(commandList)
-    return DoorState(bigDoorUp, littleDoorUp)
+    try:
+        bigDoorUp, littleDoorUp = d.getFeedback(commandList)
+    except:
+        return None
+    else:
+        return DoorState(bigDoorUp, littleDoorUp)
 
 class LiftBotProtocol(RainBotProtocol):
     def connectionMade(self):
         print "LiftBot connected"
         initU3(self.d)
         self.doorState = getDoorState(self.d)
-        self.setStatus(str(self.doorState))
+        if self.doorState:
+            self.setStatus(str(self.doorState))
         self.updateLoop = LoopingCall(self.updateDoorState)               
         self.updateLoop.start(SAMPLE_PERIOD, now=False)
 
@@ -106,7 +111,7 @@ class LiftBotProtocol(RainBotProtocol):
     
     def updateDoorState(self):
         newDoorState = getDoorState(self.d)
-        if self.doorState != newDoorState:
+        if newDoorState and self.doorState != newDoorState:
             self.doorState = newDoorState
             self.setStatus(str(self.doorState))
 
