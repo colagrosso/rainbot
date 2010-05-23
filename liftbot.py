@@ -13,7 +13,7 @@ LITTLE_DOOR_SENSOR = 6
 
 SAMPLE_PERIOD = 1
 
-PUSH_TIME = 2 # Seconds to hold the button down for
+PUSH_TIME = 3 # Seconds to hold the button down for
 
 # Set buttons for digital output low and sensors for digital input
 # Also set DAC0 to 0 V
@@ -135,16 +135,16 @@ class LiftBotProtocol(RainBotProtocol):
     def handleBig(self, msgTokens):
         self.sendText("Pushing big button")
         reactor.callLater(0, powerOnOpener, self.d)
-        reactor.callLater(1, pressBigDoorButton, self.d)
-        reactor.callLater(PUSH_TIME + 1, releaseBigDoorButton, self.d)
-        reactor.callLater(PUSH_TIME + 2, powerOffOpener, self.d)
+        reactor.callLater(2, pressBigDoorButton, self.d)
+        reactor.callLater(PUSH_TIME + 2, releaseBigDoorButton, self.d)
+        reactor.callLater(PUSH_TIME + 4, powerOffOpener, self.d)
 
     def handleLittle(self, msgTokens):
         self.sendText("Pushing little button")
         reactor.callLater(0, powerOnOpener, self.d)
-        reactor.callLater(1, pressLittleDoorButton, self.d)
-        reactor.callLater(PUSH_TIME + 1, releaseLittleDoorButton, self.d)
-        reactor.callLater(PUSH_TIME + 2, powerOffOpener, self.d)
+        reactor.callLater(2, pressLittleDoorButton, self.d)
+        reactor.callLater(PUSH_TIME + 2, releaseLittleDoorButton, self.d)
+        reactor.callLater(PUSH_TIME + 4, powerOffOpener, self.d)
 
     def handleHelp(self, msgTokens):
         responseText = "Commands:\n"
