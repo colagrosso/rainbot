@@ -134,17 +134,19 @@ class LiftBotProtocol(RainBotProtocol):
 
     def handleBig(self, msgTokens):
         self.sendText("Pushing big button")
-        reactor.callLater(0, powerOnOpener, self.d)
-        reactor.callLater(2, pressBigDoorButton, self.d)
-        reactor.callLater(PUSH_TIME + 2, releaseBigDoorButton, self.d)
-        reactor.callLater(PUSH_TIME + 4, powerOffOpener, self.d)
+        self.pushAButton(pressBigDoorButton, releaseBigDoorButton)
 
     def handleLittle(self, msgTokens):
         self.sendText("Pushing little button")
+        self.pushAButton(pressLittleDoorButton, releaseLittleDoorButton)
+
+    def pushAButton(self, pressFunction, releaseFunction):
+        self.updateLoop.stop()
         reactor.callLater(0, powerOnOpener, self.d)
-        reactor.callLater(2, pressLittleDoorButton, self.d)
-        reactor.callLater(PUSH_TIME + 2, releaseLittleDoorButton, self.d)
+        reactor.callLater(2, pressFunction, self.d)
+        reactor.callLater(PUSH_TIME + 2, releaseFunction, self.d)
         reactor.callLater(PUSH_TIME + 4, powerOffOpener, self.d)
+        reactor.callLater(PUSH_TIME + 5, self.updateLoop.start, SAMPLE_PERIOD)
 
     def handleHelp(self, msgTokens):
         responseText = "Commands:\n"
