@@ -100,6 +100,7 @@ class LiftBotProtocol(RainBotProtocol):
     def connectionMade(self):
         print "LiftBot connected"
         initU3(self.d)
+        powerOnOpener(self.d)
         self.doorState = getDoorState(self.d)
         if self.doorState:
             self.setStatus(str(self.doorState))
@@ -142,10 +143,10 @@ class LiftBotProtocol(RainBotProtocol):
 
     def pushAButton(self, pressFunction, releaseFunction):
         self.updateLoop.stop()
-        reactor.callLater(0, powerOnOpener, self.d)
+#        reactor.callLater(0, powerOnOpener, self.d)
         reactor.callLater(2, pressFunction, self.d)
         reactor.callLater(PUSH_TIME + 2, releaseFunction, self.d)
-        reactor.callLater(PUSH_TIME + 4, powerOffOpener, self.d)
+#        reactor.callLater(PUSH_TIME + 4, powerOffOpener, self.d)
         reactor.callLater(PUSH_TIME + 5, self.updateLoop.start, SAMPLE_PERIOD)
 
     def handleHelp(self, msgTokens):
