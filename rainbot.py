@@ -60,12 +60,12 @@ ZONE_DELAY_SECONDS = 5
 
 class RainBotProtocol(MessageProtocol):
     def connectionMade(self):
-        print "Connected!"
+        print "RainBot connected"
         self.d.getFeedback(ALL_OFF_COMMAND)
         self.scheduler = Scheduler(self, self.d)
 
     def connectionLost(self, reason):
-        print "Disconnected!"
+        print "RainBot disconnected"
         self.d.getFeedback(ALL_OFF_COMMAND)
         self.scheduler.shelveConfig.close()
 
