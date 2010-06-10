@@ -130,6 +130,8 @@ class LiftBotProtocol(RainBotProtocol):
                     self.handleLittle(msgTokens)
                 elif msgCommand == "help" or msgCommand == "h" or msgCommand == "?":
                     self.handleHelp(msgTokens)
+                elif msgCommand == "quit" or msgCommand == "q":
+                    self.handleQuit(msgTokens)
                 else:
                     self.handleUnknownCommand(msgTokens)
 
@@ -155,4 +157,13 @@ class LiftBotProtocol(RainBotProtocol):
         responseText = "Commands:\n"
         responseText += "big (alias 'b' or '1'): Press big button\n"
         responseText += "little (alias 'l' or '2'): Press little button\n"
+        responseText += "quit (alias 'q'): Quit the application\n"
         self.sendText(responseText)
+
+    def handleQuit(self, msgTokens):
+        """
+        Exit. Hopefully you've got monit or something to start you back up.
+        """
+        responseText = "Quitting"
+        self.sendText(responseText)
+        reactor.callLater(1, reactor.stop)
