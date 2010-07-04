@@ -6,10 +6,10 @@ from wokkel.xmppim import MessageProtocol, AvailablePresence
 from rainbot import RainBotProtocol
 import u3
 
-BIG_DOOR_BUTTON    = 4
-BIG_DOOR_SENSOR    = 7
-LITTLE_DOOR_BUTTON = 5
-LITTLE_DOOR_SENSOR = 6
+BIG_DOOR_BUTTON    = u3.FIO4
+BIG_DOOR_SENSOR    = u3.FIO7
+LITTLE_DOOR_BUTTON = u3.FIO5
+LITTLE_DOOR_SENSOR = u3.FIO6
 
 SAMPLE_PERIOD = 1
 
@@ -17,16 +17,14 @@ PUSH_TIME = 3 # Seconds to hold the button down for
 
 # Set buttons for digital output low and sensors for digital input
 # Also set DAC0 to 0 V
-INIT_IO_COMMAND = [u3.BitDirWrite(BIG_DOOR_BUTTON, 1),
-                   u3.BitDirWrite(LITTLE_DOOR_BUTTON, 1),
-                   u3.BitStateWrite(BIG_DOOR_BUTTON, 0),
-                   u3.BitStateWrite(LITTLE_DOOR_BUTTON, 0),
-                   u3.BitDirWrite(BIG_DOOR_SENSOR, 0),
-                   u3.BitDirWrite(BIG_DOOR_SENSOR, 0),
+INIT_IO_COMMAND = [u3.BitDirWrite(BIG_DOOR_SENSOR, 0),
+                   u3.BitDirWrite(LITTLE_DOOR_SENSOR, 0),
                    u3.DAC0_16(0)
                   ]
 
+# Set buttons for analog input (Hi-Z) plus the INIT_IO_COMMAND
 def initU3(d):
+    d.configAnalog(BIG_DOOR_BUTTON, LITTLE_DOOR_BUTTON)
     d.getFeedback(INIT_IO_COMMAND)
 
 def powerOnOpener(d):
@@ -40,28 +38,26 @@ def powerOffOpener(d):
     d.getFeedback(commandList)
 
 def pressBigDoorButton(d):
-    """Set BIG_DOOR_BUTTON output high."""
+    """Set BIG_DOOR_BUTTON digital output high."""
+    d.configDigital(BIG_DOOR_BUTTON)
     commandList = [u3.BitDirWrite(BIG_DOOR_BUTTON, 1), 
                    u3.BitStateWrite(BIG_DOOR_BUTTON, 1)]
     d.getFeedback(commandList)
     
 def releaseBigDoorButton(d):
-    """Set BIG_DOOR_BUTTON output low."""
-    commandList = [u3.BitDirWrite(BIG_DOOR_BUTTON, 1), 
-                   u3.BitStateWrite(BIG_DOOR_BUTTON, 0)]
-    d.getFeedback(commandList)
+    """Set BIG_DOOR_BUTTON analog input."""
+    d.configAnalog(BIG_DOOR_BUTTON)
 
 def pressLittleDoorButton(d):
-    """Set LITTLE_DOOR_BUTTON output high."""
+    """Set LITTLE_DOOR_BUTTON digital output high."""
+    d.configDigital(LITTLE_DOOR_BUTTON)
     commandList = [u3.BitDirWrite(LITTLE_DOOR_BUTTON, 1), 
                    u3.BitStateWrite(LITTLE_DOOR_BUTTON, 1)]
     d.getFeedback(commandList)
 
 def releaseLittleDoorButton(d):
-    """Set LITTLE_DOOR_BUTTON output low."""
-    commandList = [u3.BitDirWrite(LITTLE_DOOR_BUTTON, 1), 
-                   u3.BitStateWrite(LITTLE_DOOR_BUTTON, 0)]
-    d.getFeedback(commandList)
+    """Set LITTLE_DOOR_BUTTON analog input."""
+    d.configAnalog(LITTLE_DOOR_BUTTON)
 
 class DoorState(object):
     """Track which doors are open"""
@@ -147,11 +143,11 @@ class LiftBotProtocol(RainBotProtocol):
         if self.updateLoop.running:
             self.updateLoop.stop()
 #        reactor.callLater(0, powerOnOpener, self.d)
-        reactor.callLater(2, pressFunction, self.d)
-        reactor.callLater(PUSH_TIME + 2, releaseFunction, self.d)
-#        reactor.callLater(PUSH_TIME + 4, powerOffOpener, self.d)
+        reactor.callLater(0, pressFunction, self.d)
+        reactor.callLater(PUSH_TIME, releaseFunction, self.d)
+#        reactor.callLater(PUSH_TIME + 2, powerOffOpener, self.d)
         if not self.updateLoop.running:
-            reactor.callLater(PUSH_TIME + 5, self.updateLoop.start, SAMPLE_PERIOD)
+            reactor.callLater(PUSH_TIME + 3, self.updateLoop.start, SAMPLE_PERIOD)
 
     def handleHelp(self, msgTokens):
         responseText = "Commands:\n"
