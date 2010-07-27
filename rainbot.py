@@ -68,6 +68,8 @@ class RainBotProtocol(MessageProtocol):
         print "RainBot disconnected"
         self.d.getFeedback(ALL_OFF_COMMAND)
         self.scheduler.shelveConfig.close()
+        print "RainBot shutting down reactor. See you on the flip side."
+        reactor.stop()
 
     def setStatus(self, statusText, show = None):
         """
