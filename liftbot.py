@@ -11,7 +11,7 @@ BIG_DOOR_SENSOR    = u3.FIO7
 LITTLE_DOOR_BUTTON = u3.FIO5
 LITTLE_DOOR_SENSOR = u3.FIO6
 
-SAMPLE_PERIOD = 1
+SAMPLE_PERIOD = 3
 
 PUSH_TIME = 3 # Seconds to hold the button down for
 
@@ -88,6 +88,7 @@ def getDoorState(d):
     try:
         bigDoorUp, littleDoorUp = d.getFeedback(commandList)
     except:
+        print "LiftBot got exception while reading door state. Returning None."
         return None
     else:
         return DoorState(bigDoorUp, littleDoorUp)
