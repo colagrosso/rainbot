@@ -106,6 +106,8 @@ class LiftBotProtocol(RainBotProtocol):
 
     def connectionLost(self, reason):
         print "LiftBot disconnected"
+        print "LiftBot shutting down reactor. That's it for me you've been great."
+        reactor.stop()
     
     def updateDoorState(self):
         newDoorState = getDoorState(self.d)
